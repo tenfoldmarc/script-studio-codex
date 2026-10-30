@@ -1,0 +1,6 @@
+{
+  "version": "1.0.1",
+  "repository": "https://github.com/tenfoldmarc/script-studio",
+  "commit": "73c98d5138ad4fa68e196805201c02bfcc9c86dc",
+  "manifest": "script-studio/.claude-plugin/plugin.json"
+}
