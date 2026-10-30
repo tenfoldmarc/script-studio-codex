@@ -17,13 +17,8 @@ function Find-Py {
 
 $Py = Find-Py
 if (-not $Py) {
-  $CodexDir = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }
-  $Studio = Join-Path $CodexDir 'plugins\cache\creator-studio-codex\video-studio\local\skills\video-studio\scripts\start.ps1'
-  if (-not (Test-Path -LiteralPath $Studio)) { Write-Output 'STATUS studio NOT_INSTALLED'; exit 0 }
-  Write-Output 'SETUP running the Creator Studio setup first (one time, a few minutes)'
-  powershell -NoProfile -ExecutionPolicy Bypass -File $Studio | Out-Null
-  $Py = Find-Py
-  if (-not $Py) { Write-Output 'STATUS studio SETUP_FAILED'; exit 0 }
+  Write-Output 'STATUS studio SETUP_REQUIRED: run the installed Creator Studio for Codex setup check, then retry.'
+  exit 0
 }
 Write-Output "PY $Py"
 & $Py (Join-Path $SsDir 'scripts\ss.py') check

@@ -69,6 +69,10 @@ It prints `PY <path>` then STATUS lines. Read them, do not announce them.
   `PY "SS/scripts/update.py"`, pass on what it prints, tell them to start a new chat, and stop. No: carry on and
   don't ask again in this chat.
 - `SETUP running the Creator Studio setup first`: say once that the first run takes a few minutes, then wait.
+- `STATUS studio SETUP_REQUIRED`: resolve `video-studio@creator-studio-codex` with `codex plugin list --json`.
+  Read its loaded `skills/video-studio/SKILL.md` (or that path under the entry's `source.path`) and run its
+  setup check only, then retry this skill's starter. This bootstraps the shared tools without asking the
+  buyer to switch chats. If the dependency is not installed, explain that Creator Studio is required.
 - `STATUS studio NOT_INSTALLED` or `SETUP_FAILED`: Script Studio runs on Creator Studio. Say: "Script Studio
   needs Creator Studio installed first. Install it from your portal, then say 'set up Script Studio'." Stop.
 - `STATUS profile MISSING`: the setup below, then what they asked for.

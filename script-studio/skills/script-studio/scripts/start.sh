@@ -19,19 +19,10 @@ find_py() {
 }
 
 if ! find_py; then
-  # the Studio was never set up on this computer: run its own setup (it gets Python, ffmpeg, Whisper)
-  CODEX_DIR="${CODEX_HOME:-$HOME/.codex}"
-  STUDIO_START="$CODEX_DIR/plugins/cache/creator-studio-codex/video-studio/local/skills/video-studio/scripts/start.sh"
-  if [ ! -f "$STUDIO_START" ]; then
-    echo "STATUS studio NOT_INSTALLED"
-    exit 0
-  fi
-  echo "SETUP running the Creator Studio setup first (one time, a few minutes)"
-  sh "$STUDIO_START" >/dev/null 2>&1
-  if ! find_py; then
-    echo "STATUS studio SETUP_FAILED"
-    exit 0
-  fi
+  # Codex can use versioned or "local" caches. Let the agent resolve the registered
+  # Creator Studio source instead of guessing a cache directory or choosing a stale version.
+  echo 'STATUS studio SETUP_REQUIRED: run the installed Creator Studio for Codex setup check, then retry.'
+  exit 0
 fi
 echo "PY $PY"
 exec "$PY" "$SS_DIR/scripts/ss.py" check
