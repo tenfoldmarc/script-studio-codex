@@ -4,8 +4,11 @@
 # missing, then prints the STATUS lines. Never runs a bare python3 (on a Mac that can open an Xcode prompt).
 SS_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 case "$(uname -s)" in
-  Darwin) STUDIO_STATE="$HOME/Library/Application Support/video-studio" ;;
-  *) STUDIO_STATE="${XDG_DATA_HOME:-$HOME/.local/share}/video-studio" ;;
+  Darwin) STUDIO_STATE="$HOME/Library/Application Support/video-studio-codex" ;;
+  *) STUDIO_STATE="${XDG_DATA_HOME:-$HOME/.local/share}/video-studio-codex" ;;
+esac
+case "${VIDEO_STUDIO_STATE:-}" in
+  /*/video-studio-codex|/*/video-studio-codex-*) STUDIO_STATE="$VIDEO_STUDIO_STATE" ;;
 esac
 
 find_py() {
@@ -17,8 +20,9 @@ find_py() {
 
 if ! find_py; then
   # the Studio was never set up on this computer: run its own setup (it gets Python, ffmpeg, Whisper)
-  STUDIO_START="$(ls -d "$HOME"/.claude/plugins/cache/*/video-studio/*/skills/video-studio/scripts/start.sh 2>/dev/null | sort -V | tail -n 1)"
-  if [ -z "$STUDIO_START" ]; then
+  CODEX_DIR="${CODEX_HOME:-$HOME/.codex}"
+  STUDIO_START="$CODEX_DIR/plugins/cache/creator-studio-codex/video-studio/local/skills/video-studio/scripts/start.sh"
+  if [ ! -f "$STUDIO_START" ]; then
     echo "STATUS studio NOT_INSTALLED"
     exit 0
   fi

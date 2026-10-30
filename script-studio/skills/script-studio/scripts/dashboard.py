@@ -29,7 +29,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 sys.dont_write_bytecode = True
-APP = 'script-studio'
+APP = 'script-studio-codex'
 UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ScriptStudio/1.0'
 FRESH_DAYS = 3
 
@@ -507,7 +507,7 @@ THUMB_W = 540
 
 def find_ffmpeg():
     """The Creator Studio's ffmpeg, when it is installed. None otherwise: images are then kept as they come."""
-    cfg = read_json(os.path.join(data_dir('video-studio'), '.platform.json'), {}) or {}
+    cfg = read_json(os.path.join(os.environ.get('VIDEO_STUDIO_STATE') or data_dir('video-studio-codex'), '.platform.json'), {}) or {}
     f = cfg.get('ffmpeg') if isinstance(cfg, dict) else None
     return f if isinstance(f, str) and os.path.isfile(f) else None
 
@@ -1182,8 +1182,8 @@ JS = r"""
       '<p class="pcap">Tallest bar: '+esc(p.bx)+' your usual, '+esc(p.bd)+'.</p></figure>';
   }
   function secMy(d){
-    if(d.state==='noaccount') return empty('No account set up yet','Tell Claude your Instagram handle and it studies your reels for you.','set up Script Studio');
-    if(d.state!=='ok') return empty('Your reels are not studied yet','Claude collects your public reels, ranks them against your own usual and transcribes the best and the weakest.','refresh my research');
+    if(d.state==='noaccount') return empty('No account set up yet','Tell Codex your Instagram handle and it studies your reels for you.','set up Script Studio');
+    if(d.state!=='ok') return empty('Your reels are not studied yet','Codex collects your public reels, ranks them against your own usual and transcribes the best and the weakest.','refresh my research');
     var out='<div class="sec-head"><div><h2>My reels</h2><p>Ranked by how far each one beat your usual. Tap a reel to read exactly what you said.</p></div>'+
       '<div class="seg" role="group" aria-label="Filter your reels"><button class="on" data-filter="all">All <span>'+d.n[0]+'</span></button>'+
       '<button data-filter="win">Winners, 1.2x+ <span>'+d.n[1]+'</span></button><button data-filter="weak">Weakest, under 0.7x <span>'+d.n[2]+'</span></button></div></div>';
@@ -1209,7 +1209,7 @@ JS = r"""
     if(d.lean.length) out+='<div class="sub-head"><h3>The hook types that work for you</h3><p>From your voice profile.</p></div><ul class="lean">'+each(d.lean,function(l){
       return '<li class="'+(l.weak?'weak':'')+'"><p class="ln">'+md(l.name)+'</p>'+(l.stat?'<p class="ls">'+md(l.stat)+'</p>':'')+(l.quote?'<p class="lq">'+md(l.quote)+'</p>':'')+'</li>'})+'</ul>';
     out+='<div class="sub-head"><h3>Hook bank</h3><p>Every saved hook, best first. The words in color are the parts you swap for your own.</p></div>';
-    if(!d.bank.length) return out+empty('Your hook bank is empty','Claude fills it from the reels that beat their creator\'s usual, yours and your competitors\'.','refresh my research');
+    if(!d.bank.length) return out+empty('Your hook bank is empty','Codex fills it from the reels that beat their creator\'s usual, yours and your competitors\'.','refresh my research');
     out+='<div class="bank-tools"><label class="search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="m14 14 4 4"/></svg>'+
       '<input type="search" id="hook-q" placeholder="Search hooks, words, creators" aria-label="Search the hook bank"></label>'+
       '<div class="chips" role="group" aria-label="Filter by hook type"><button class="chip on" data-mech="">All <span>'+d.bank.length+'</span></button>'+
@@ -1229,7 +1229,7 @@ JS = r"""
   /* ---- Competitors ---- */
   function secComp(list){
     var out='<div class="sec-head"><div><h2>Competitors</h2><p>The reels that beat their own usual by 2x or more. Their usual, not their follower count, is the bar.</p></div></div>';
-    if(!list.length) return out+empty('No competitors yet','Name 3 to 10 accounts whose reels pop in your space and Claude studies them.','add a competitor');
+    if(!list.length) return out+empty('No competitors yet','Name 3 to 10 accounts whose reels pop in your space and Codex studies them.','add a competitor');
     list.forEach(function(c){
       var head=function(sub){return '<header class="comp-head"><div class="avatar">'+esc(c.h.charAt(0).toUpperCase())+'</div><div class="ch-txt"><h3>@'+esc(c.h)+'</h3>'+sub+'</div>'+
         ext('https://www.instagram.com/'+c.h+'/','Profile','ghost-btn')+'</header>'};
@@ -1252,7 +1252,7 @@ JS = r"""
     out+=d.pillars.length?'<div class="pillars">'+each(d.pillars,function(p,i){
       return '<div class="pillar"><span class="pn">'+(i<9?'0':'')+(i+1)+'</span><p class="pt">'+md(p[0])+'</p>'+(p[1]?'<p class="pd">'+md(p[1])+'</p>':'')+
         (p[2]?'<a class="pproof" href="'+esc(p[2])+'" target="_blank" rel="noopener">'+esc(p[3]||'Proof')+' <span aria-hidden="true">↗</span></a>':'')+'</div>'})+'</div>'
-      :empty('No pillars saved yet','Claude names your pillars from your best reels during a refresh.','refresh my research');
+      :empty('No pillars saved yet','Codex names your pillars from your best reels during a refresh.','refresh my research');
     var cols='';
     if(d.reddit){
       cols+='<div class="tcol"><div class="sub-head"><h3>Reddit</h3><p>The top threads in your subreddits'+(d.reddit.date?', collected '+esc(d.reddit.date):'')+'.</p></div>'+each(d.reddit.groups,function(g){
@@ -1262,13 +1262,13 @@ JS = r"""
             (it.coms.length?'<div class="t-coms"><p class="k">What people said</p>'+each(it.coms,function(c){return '<blockquote>'+esc(c)+'</blockquote>'})+'</div>':'')+
             '<p class="t-meta">Top of the '+esc(it.period)+(it.posted!=null?' \u00b7 '+esc(it.posted):'')+'</p></div></article>'})+
           (g.items.length>6?more('r:'+g.where,g.items.length):'')+'</div>'})+'</div>';
-    }else cols+='<div class="tcol"><div class="sub-head"><h3>Reddit</h3></div>'+empty('No Reddit threads yet','Tell Claude the subreddits your audience reads and it pulls the top threads and comments.','add subreddits to my research')+'</div>';
+    }else cols+='<div class="tcol"><div class="sub-head"><h3>Reddit</h3></div>'+empty('No Reddit threads yet','Tell Codex the subreddits your audience reads and it pulls the top threads and comments.','add subreddits to my research')+'</div>';
     if(d.x){
       var ps=d.x.posts;
       cols+='<div class="tcol"><div class="sub-head"><h3>X</h3><p>Popular posts from the accounts and searches you follow'+(d.x.date?', collected '+esc(d.x.date):'')+'.</p></div><div class="xlist">'+each(ps,function(p,i){
         return '<article class="xpost'+(i>=8?' is-more':'')+'"><p class="x-top"><b>'+esc(p.where)+'</b><span>'+esc(p.likes)+' likes</span>'+(p.posted!=null?'<span>'+esc(p.posted)+'</span>':'')+'</p>'+
           '<p class="x-text">'+esc(p.text).replace(/\n/g,'<br>')+'</p>'+ext(p.url,'Open on X')+'</article>'})+'</div>'+(ps.length>8?more('x',ps.length):'')+'</div>';
-    }else cols+='<div class="tcol"><div class="sub-head"><h3>X</h3></div>'+empty('No X posts yet','Give Claude a few X accounts or search terms and it pulls what is popular there.','add X searches to my research')+'</div>';
+    }else cols+='<div class="tcol"><div class="sub-head"><h3>X</h3></div>'+empty('No X posts yet','Give Codex a few X accounts or search terms and it pulls what is popular there.','add X searches to my research')+'</div>';
     return out+'<div class="tcols">'+cols+'</div>';
   }
 

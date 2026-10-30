@@ -3,7 +3,10 @@
 $ErrorActionPreference = 'SilentlyContinue'
 $SsDir = Split-Path -Parent $PSScriptRoot
 $Local = if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { Join-Path $HOME 'AppData\Local' }
-$Plat = Join-Path $Local 'video-studio\.platform.json'
+$StudioState = Join-Path $Local 'video-studio-codex'
+if ($env:VIDEO_STUDIO_STATE -and [IO.Path]::IsPathRooted($env:VIDEO_STUDIO_STATE) -and
+    ((Split-Path -Leaf $env:VIDEO_STUDIO_STATE) -match '^video-studio-codex(-.*)?$')) { $StudioState = $env:VIDEO_STUDIO_STATE }
+$Plat = Join-Path $StudioState '.platform.json'
 
 function Find-Py {
   if (-not (Test-Path $Plat)) { return $null }
@@ -14,11 +17,11 @@ function Find-Py {
 
 $Py = Find-Py
 if (-not $Py) {
-  $Studio = Get-ChildItem -Path (Join-Path $HOME '.claude\plugins\cache\*\video-studio\*\skills\video-studio\scripts\start.ps1') |
-    Sort-Object FullName | Select-Object -Last 1
-  if (-not $Studio) { Write-Output 'STATUS studio NOT_INSTALLED'; exit 0 }
+  $CodexDir = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }
+  $Studio = Join-Path $CodexDir 'plugins\cache\creator-studio-codex\video-studio\local\skills\video-studio\scripts\start.ps1'
+  if (-not (Test-Path -LiteralPath $Studio)) { Write-Output 'STATUS studio NOT_INSTALLED'; exit 0 }
   Write-Output 'SETUP running the Creator Studio setup first (one time, a few minutes)'
-  powershell -NoProfile -ExecutionPolicy Bypass -File $Studio.FullName | Out-Null
+  powershell -NoProfile -ExecutionPolicy Bypass -File $Studio | Out-Null
   $Py = Find-Py
   if (-not $Py) { Write-Output 'STATUS studio SETUP_FAILED'; exit 0 }
 }

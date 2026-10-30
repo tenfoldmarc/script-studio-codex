@@ -32,7 +32,7 @@ accounts, accounts that only post carousels or photos, private accounts.
 
 ## The Apify connector fallback
 
-No key, but an Apify tool is connected in this Claude: call the actor `apify/instagram-reel-scraper` with
+No key, but an Apify tool is connected in this Codex chat: call the actor `apify/instagram-reel-scraper` with
 `{"username": ["handle1", "handle2"], "resultsLimit": 40}` (or reel links in `username`), wait until it finishes,
 then `import <datasetId>`. Everything after that is the same.
 

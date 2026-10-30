@@ -1,14 +1,46 @@
 ---
 name: script-studio
-description: "Script Studio (Creator Studio add-on). Studies the creator's own Instagram reels and their competitors' (scraped, ranked against each account's own average, transcribed), plus the places their audience hangs out (Reddit, X, websites), then writes ready-to-record short-form scripts in the creator's own voice, built on hooks and topics that already won. Use when the user says 'give me tomorrow's reel', 'give me ideas', 'what should I film', 'write me a script', 'script about X', 'what should I post', 'give me reel ideas', 'a week of scripts', 'make my version of this reel <link>', 'research my competitors', 'what are my best hooks', 'what works on my account', 'refresh my research', 'add a competitor', 'add a source', 'open my dashboard', 'show me my hooks', 'show my competitors', 'set up Script Studio', or runs /script-studio."
+description: "Script Studio for Codex, a Creator Studio add-on. Research the creator's reels, competitors and audience sources, rank outliers, build a voice profile, and write ready-to-record scripts with proven hooks. Use for script writing, content ideas, competitor research, tomorrow's reel, a week of scripts, the research dashboard, setup, or updating Script Studio. Also handle a request to update both Creator Studio and Script Studio through the combined plugin updater."
 ---
 
 # Script Studio
 
+
+## Plugin installation and updates
+
+Handle an explicit plugin installation or release-update request BEFORE the setup check below.
+Updating captions, a script, or an editing style is an editing request, not a plugin release update.
+For a release update, do not open the picker, download editing models, or ask setup questions.
+The user's update request authorizes that update; do not ask them to confirm it again.
+
+This skill is installed from `script-studio@script-studio-codex`. Its absolute folder is the directory containing
+this loaded SKILL.md. `scripts/update.py` is standard-library-only and does not need the editing environment.
+Use the working Python from the Studio's `.platform.json` when it exists, or another working Python 3.9+.
+On a Mac do not run the `/usr/bin/python3` placeholder to obtain an update; use the native commands below instead.
+
+- Update this plugin: run `PY "<this skill>/scripts/update.py"`.
+- "Update the video studio plugin and the script studio plugin", "update both Studios", or equivalent:
+  run `PY "<this skill>/scripts/update.py" --all` once. It attempts every installed Studio and reports each result.
+  Do not stop after the first plugin. Do not install an unowned/missing add-on as part of an update request.
+- Install: follow the repository README. Script Studio needs Creator Studio installed first.
+- `--check` only offers available releases; it does not install them. Explicit update requests run the updater directly.
+
+If no working Python is available, use Codex's native CLI. For this plugin:
+`codex plugin marketplace upgrade script-studio-codex` then `codex plugin add script-studio@script-studio-codex`.
+For a combined update, do the same for BOTH `creator-studio-codex`/`video-studio` and
+`script-studio-codex`/`script-studio`, restricted to plugins listed as installed by `codex plugin list --json`.
+The helper also discovers Codex's bundled executable; `STUDIO_CODEX_EXECUTABLE` can name an explicit executable.
+If the CLI is unavailable, explain that prerequisite using the repository README; never call Claude's CLI.
+
+Verify the manifest in each returned `installedPath` before saying it is updated. The CLI may report a cache
+version of `local`; the actual release is the `version` in `plugin.json`. Report failures individually, including
+GitHub access or authentication failures, and keep the successful results. Then tell the user to start a new
+Codex chat once for all requested updates. If the desktop still shows old instructions, restart it.
+Saved settings, styles, research, credentials and projects are outside the installed packages and stay in place.
+
 Research in, ready-to-record scripts out. The creator films, Creator Studio edits.
 
-`SS` is this skill's folder (`${CLAUDE_SKILL_DIR}`, or the base directory Claude Code gave you when it loaded the
-skill). It is read-only: never write into it. `PY` is the Python the quiet check prints. `ST` is the buyer's
+`SS` is this skill's folder (the absolute directory containing this loaded `SKILL.md`). It is read-only: never write into it. `PY` is the Python the quiet check prints. `ST` is the buyer's
 Script Studio folder (the `STATE` line): everything about them lives there and survives updates.
 
 Every command below is `PY "SS/scripts/ss.py" <command>`. Talk to the buyer in plain words: never show them STATUS
@@ -41,7 +73,7 @@ It prints `PY <path>` then STATUS lines. Read them, do not announce them.
   needs Creator Studio installed first. Install it from your portal, then say 'set up Script Studio'." Stop.
 - `STATUS profile MISSING`: the setup below, then what they asked for.
 - Half-finished setup: resume at the first missing piece, in this order: profile, key (`apify MISSING` or
-  `INVALID` with no Apify tool connected in this Claude: setup round b; with one connected, connector mode), research (`research MISSING`: Refresh), about (`about MISSING` with profile OK: ask the
+  `INVALID` with no Apify tool connected in this Codex chat: setup round b; with one connected, connector mode), research (`research MISSING`: Refresh), about (`about MISSING` with profile OK: ask the
   round c questions and write `ST/about.md`), voice (`voice MISSING` with research present: setup step 5). Never
   restart the setup and never re-ask what is already saved.
 - `STATUS research STALE` (7 days or more): offer one line, "Want me to refresh your research first? About 10
@@ -76,7 +108,7 @@ They came for scripts, so keep it tight. Three short rounds from them, then you 
    --x-handles "a,b" --x-search "term one;term two" --sites "url,url" --vocab "a,b,c" --website "<url>" --scripts-dir "<folder>"`.
    The profile holds only the handle, niche, accounts and sources. What they sell goes into `ST/about.md` (step 4).
 3. Round b, Apify (the service that collects public reels). **Skip this round entirely when an Apify tool is
-   already connected in this Claude** (tools whose names contain `apify`, with a way to call an actor) or the check
+   already connected in this Codex chat** (tools whose names contain `apify`, with a way to call an actor) or the check
    says `apify OK`: say nothing about it and go on. With a connected tool and no key, every research command runs in
    connector mode: it prints `CONNECTOR <name> <actor>` and `INPUT <json>` and stops. Call that actor with that exact
    input through the Apify tool, wait for it to finish, then hand the dataset back with `import <datasetId>` (reels)

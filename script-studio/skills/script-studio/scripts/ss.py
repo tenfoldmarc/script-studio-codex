@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Script Studio engine. Research in, ready-to-record scripts out (Claude writes; this gathers and ranks).
+"""Script Studio engine. Research in, ready-to-record scripts out (Codex writes; this gathers and ranks).
 
 Run with the Creator Studio's own Python (start.sh / start.ps1 find it). Commands:
   check                                   STATUS lines (never shown to the buyer)
@@ -11,7 +11,7 @@ Run with the Creator Studio's own Python (start.sh / start.ps1 find it). Command
   reddit [--subs a,b] [--period week|month|year] [--limit 12] [--comments 1]   (slow: Reddit rate-limits; run in the background)
   x [--handles a,b] [--search "a;b"] [--max 60]
   quick [--since "10 days"]               fresh research for an ideas session (new reels, new outliers, X, brief)
-  brief [--days 120]                      writes research/brief.md (what Claude reads to find ideas)
+  brief [--days 120]                      writes research/brief.md (what Codex reads to find ideas)
   import <file | Apify dataset id>        reels collected another way (Apify connector, export)
   import-x <file | Apify dataset id>      X posts collected with the Apify connector
   library [--handle h] [--top 20]         ranked list of scraped reels
@@ -35,8 +35,8 @@ import urllib.parse
 import urllib.request
 
 sys.dont_write_bytecode = True
-APP = 'script-studio'
-STUDIO_APP = 'video-studio'
+APP = 'script-studio-codex'
+STUDIO_APP = 'video-studio-codex'
 VERSION = '1.0.0'
 REEL_ACTOR = 'apify~instagram-reel-scraper'
 X_ACTOR = 'apidojo~tweet-scraper'
@@ -120,7 +120,7 @@ def write_json(path, data):
 
 
 def studio_platform():
-    return read_json(os.path.join(data_dir(STUDIO_APP), '.platform.json'), {}) or {}
+    return read_json(os.path.join(os.environ.get('VIDEO_STUDIO_STATE') or data_dir(STUDIO_APP), '.platform.json'), {}) or {}
 
 
 def ffmpeg():
@@ -185,7 +185,7 @@ def apify_user(tok):
 
 
 class NeedConnector(Exception):
-    """No Apify key saved: the buyer has Apify connected inside Claude instead. The plan was printed; Claude runs
+    """No Apify key saved: the buyer has Apify connected inside Codex instead. The plan was printed; Codex runs
     the actor with its Apify tool and hands the dataset back with `import` / `import-x`."""
 
 
@@ -522,7 +522,7 @@ def cmd_quick(a):
     est = len(handles) * a.limit * REEL_PRICE + 0.01
     print('PLAN newest reels of %d account(s) from the last %s, about $%.2f of Apify credit at most' % (len(handles), a.since, est), flush=True)
     inp = {'username': handles, 'resultsLimit': a.limit, 'onlyPostsNewerThan': a.since, 'skipTrialReels': True, 'skipPinnedPosts': True}
-    if not token():   # Apify connected inside Claude: print both plans, Claude runs them and imports
+    if not token():   # Apify connected inside Codex: print both plans, Codex runs them and imports
         print('CONNECTOR reels %s' % REEL_ACTOR.replace('~', '/'))
         print('INPUT %s' % json.dumps(inp, ensure_ascii=False))
         if p['x_handles'] or p['x_search']:

@@ -1,0 +1,19 @@
+{
+  "name": "script-studio",
+  "description": "Studies your reels, your competitors' reels and the places your audience hangs out, then writes ready-to-record reel scripts in your own voice, built on hooks and topics that already won. Add-on for Creator Studio.",
+  "author": {
+    "name": "Marc Cleroux",
+    "url": "https://github.com/tenfoldmarc"
+  },
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "version": "1.0.0",
+  "repository": "https://github.com/tenfoldmarc/script-studio-codex",
+  "homepage": "https://portal.tenfoldmarketing.com",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Script Studio for Codex"
+      }
+    }
+  }
+}

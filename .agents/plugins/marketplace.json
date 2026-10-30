@@ -1,0 +1,20 @@
+{
+  "name": "script-studio-codex",
+  "interface": {
+    "displayName": "Script Studio for Codex"
+  },
+  "plugins": [
+    {
+      "name": "script-studio",
+      "source": {
+        "source": "local",
+        "path": "./script-studio"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
